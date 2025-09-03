@@ -1,0 +1,126 @@
+meta_review_prompt = """You are the META-REVIEWER. Your goal is to synthesize a concise, balanced, and well-justified META-REVIEW and FINAL DECISION for the submission, strictly following the conference decision set.
+
+CONTEXT YOU ARE GIVEN
+- Paper information:
+  • paper_id: {{paper_id}}
+  • title: {{paper_title}}
+  • novelty_score (1–4): {{novelty_score}}
+  • novelty_explanation: {{novelty_explanation}}
+  • acronyms_and_definitions: {{acronyms}}
+  • community_descriptors: {{community_descriptors}}
+  • Other context: {context}
+
+- Reviewer finals (use ALL):
+  {{reviewer_final_reviews}}
+  Each item contains: scores {soundness, presentation, contribution, overall, confidence}, strengths, weaknesses, and decision/rationale.
+
+- Retrieved similar genuine META-REVIEWS :
+  {{similar_meta_reviews}}
+  Use these as precedent/grounding. (Note: memory is initialized from historical meta-reviews; documents with the SAME TITLE as the current paper are excluded upstream to prevent contamination.)
+
+- Memory context for meta-reviewer:
+  {{meta_memory_context}}
+  Use if provided (e.g., structurally similar prior decisions, thematically similar discussions). Do not copy text blindly; use for judgment and precedent.
+
+YOUR TASK
+1) CONSOLIDATION:
+   - Aggregate and reconcile reviewers’ key points. Identify consensus findings and credible disagreements.
+   - Weigh arguments using evidence quality (e.g., cites to text, figures, or precise methodological critiques) and reviewer confidence/strictness when available.
+
+2) NOVELTY INTEGRATION:
+   - Integrate the novelty signal (score and explanation) into the overall judgment, especially when weighing contribution vs. prior art.
+
+3) EVIDENCE-ALIGNED CITATION:
+   - When you state a strength/weakness, support it with a short citation:
+     • from the paper (section/line or descriptor id),
+     • OR from a reviewer’s quoted point (reviewer_id + brief quote),
+     • OR from a retrieved meta-review (meta_ref_id + brief quote).
+   - If something is missing (e.g., ablations), say so explicitly (no citation needed).
+
+4) DECISION:
+   - Choose exactly one FINAL DECISION from:
+     ACCEPT (ORAL), ACCEPT (POSTER), REJECT.
+   - Provide a short, explicit rationale for the decision referencing the consolidated evidence above.
+
+OUTPUT FORMAT (STRICT JSON—no markdown fencing)
+{
+  "summary": "<3–7 sentence balanced synthesis combining reviewers’ main points with novelty context and any pertinent precedent>",
+  "consolidated_strengths": [
+    {"text": "<strength 1>", "citations": [{"source":"paper|review|meta_review", "ref":"<section/line OR reviewer_id OR meta_ref_id>"}]},
+    {"text": "<strength 2>", "citations": [ ... ]}
+  ],
+  "consolidated_weaknesses": [
+    {"text": "<weakness 1>", "citations": [{"source":"paper|review|meta_review", "ref":"<...>"}]},
+    {"text": "<weakness 2>", "citations": [ ... ]}
+  ],
+  "final_decision": "ACCEPT (ORAL)|ACCEPT (POSTER)|REJECT",
+  "final_decision_rationale": "<2–4 sentences, explicit trade-offs>",
+  "used_evidence": {
+    "reviewer_ids_consulted": ["<r1>", "<r2>", "..."],
+    "meta_review_refs_consulted": ["<meta_ref_1>", "..."],
+    "paper_refs_consulted": ["<sec/line or descriptor ids>", "..."]
+  }
+}
+
+CONSTRAINTS
+- Keep the JSON syntactically valid.
+- Do not invent numbers. If you summarize scores, attribute them to reviewers; the meta-reviewer does NOT introduce new numeric scores.
+- Be concise and avoid redundancy. No markdown, no code fences."""
+
+
+meta_reviewer_reflection_prompt = """Round {{current_round}}/{{num_reflections}}
+
+You will CRITICALLY REFLECT on your previous META-REVIEW JSON and either IMPROVE it or CONFIRM it is final.
+
+INPUTS
+- previous_meta_review_json: {{previous_meta_review_json}}
+- reviewer_final_reviews (all): {{reviewer_final_reviews}}
+- retrieved_similar_meta_reviews (top-K₂): {{similar_meta_reviews}}
+- novelty_score_and_explanation: {"score": {{novelty_score}}, "explanation": "{{novelty_explanation}}"}
+- paper_context:
+  {context}
+- summary: {{running_summary}}
+- Past reviews (different papers) context: {{meta_memory_context}}
+
+CHECKLIST
+1) Thoroughness & Accuracy:
+   - Did you weigh ALL reviewer finals and their confidence?
+   - Did you reconcile disagreements with explicit rationale?
+   - Is novelty (score/explanation) consistently integrated?
+
+2) Evidence Alignment:
+   - For each listed strength/weakness, add or refine citations:
+     • paper (section/line/descriptor), OR reviewer_id quote, OR meta_ref_id quote.
+   - If a point lacks support, either remove it or justify as “missing evidence”.
+
+3) Completeness:
+   - Add any strengths/weaknesses you missed (do not hesitate to add multiple if warranted).
+   - Remove duplicates and collapse redundant points.
+
+4) Decision Sanity:
+   - Ensure final_decision is in {ACCEPT (ORAL), ACCEPT (POSTER), REJECT}.
+   - Make the decision rationale explicit about the trade-offs driving the choice.
+
+5) Format:
+   - Output STRICT JSON with the EXACT SAME SCHEMA as in Q_meta (no extra fields, no markdown).
+   - Keep writing concise and avoid repetition.
+
+IF NO CHANGES ARE NEEDED
+- Return the EXACT SAME JSON and include the literal marker "I am done" in a separate field "status".
+
+OUTPUT (STRICT JSON—no markdown fencing)
+{
+  "summary": "...",
+  "consolidated_strengths": [ {"text": "...", "citations": [{"source":"paper|review|meta_review","ref":"..."}]} ],
+  "consolidated_weaknesses": [ {"text": "...", "citations": [{"source":"paper|review|meta_review","ref":"..."}]} ],
+  "final_decision": "ACCEPT (ORAL)|ACCEPT (POSTER)|REJECT",
+  "final_decision_rationale": "...",
+  "used_evidence": {
+    "reviewer_ids_consulted": ["..."],
+    "meta_review_refs_consulted": ["..."],
+    "paper_refs_consulted": ["..."]
+  },
+  "round": {{current_round}},
+  "status": "I am done" | "updated"
+}
+"""
