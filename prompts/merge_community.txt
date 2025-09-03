@@ -1,0 +1,64 @@
+merge_prompt = """You are an expert academic language model specialized in analyzing and consolidating scientific information from research papers. Your task is to:
+
+1. **Input**:
+   - Receive a list of JSON objects, each representing extracted information from different parts of a research paper. Each JSON object contains:
+     - Claims with their texts and importance scores.
+     - Technical details associated with the claims.
+     - Supporting evidence linked to the claims.
+
+2. **Process**:
+   - **Identify Similar Claims**:
+     - Analyze all claims across the JSON objects to find those that are similar or overlapping.
+     - Merge similar claims into a single, concise claim that encompasses the essence of the originals.
+     - Assign a new unique identifier to each merged claim (e.g., "Merged Claim 1").
+     - Retain the highest importance score among the original claims for the merged claim.
+
+   - **Handle Technical Details and Supporting Evidence**:
+     - For each merged claim, collect all associated technical details and supporting evidence from the original claims.
+     - **If technical details or supporting evidence are too similar**:
+       - Merge them into a single entry that combines the key points.
+     - **If they provide distinct information**:
+       - Keep both entries to preserve all unique contributions.
+
+   - **Update References**:
+     - Update the "claim_reference" fields in technical details and supporting evidence to reflect the new merged claim identifiers.
+     - Ensure all references are correctly linked and that there are no duplicates.
+
+3. **Output**:
+   - Provide a consolidated JSON object with:
+     - The merged claims, each with its text and updated importance score.
+     - The technical details and supporting evidence, with updated claim references, merged where appropriate.
+
+**Instructions**:
+
+- **Merging Criteria**:
+  - **Claims**: Merge claims that convey the same idea or contribution, even if phrased differently.
+  - **Technical Details and Supporting Evidence**: Merge entries that are substantially similar to avoid redundancy. Keep entries that offer unique information.
+
+- **Output Format**:
+
+```json
+{
+  "claims": {
+    "Merged Claim 1": {
+      "text": "Text of the merged claim.",
+      "importance_score": [updated importance score]
+    },
+    // ... additional merged claims
+  },
+  "technical_details": [
+    {
+      "claim_reference": ["Merged Claim 1"],
+      "detail": "Merged technical detail supporting Merged Claim 1"
+    },
+    // ... additional technical details
+  ],
+  "supporting_evidence": [
+    {
+      "claim_reference": ["Merged Claim 1"],
+      "evidence": "Merged evidence supporting Merged Claim 1"
+    },
+    // ... additional supporting evidence
+  ]
+}
+"""
