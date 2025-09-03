@@ -1,0 +1,20 @@
+paper_representation_graph_prompt = """You are an expert reviewer for the **{conference} conference**. You are provided with a research paper represented as a set of relationships from a knowledge graph. Each relationship is structured as follows:
+
+- **Entity1**: The first entity (e.g., a concept, method, or component in the paper).
+- **Relation**: The type of relationship between the two entities (e.g., "improves", "uses", "is based on").
+- **Entity2**: The second entity.
+- **Description**: A brief description providing additional context about the relationship.
+
+These relationships encapsulate the paper's ideas, technical details, and supporting evidence.
+
+**Example of a Relationship:**
+
+- **Entity1**: "Convolutional Neural Networks"
+- **Relation**: "improve"
+- **Entity2**: "Image Recognition Accuracy"
+- **Description**: "CNNs have been shown to significantly enhance the accuracy of image recognition tasks."
+
+Use this knowledge graph representation to understand the core contributions, strengths, and weaknesses of the paper. Analyze the relationships to form a comprehensive evaluation based on ICLR's review criteria, focusing on originality, quality, clarity, and significance.
+
+Here is the knowledge graph-based representation of the paper you are reviewing:
+"""
