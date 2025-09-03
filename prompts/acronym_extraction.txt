@@ -1,0 +1,17 @@
+acronym_extraction_prompt = """Given the following title, abstract, and introduction of a research paper, extract all unique acronyms along with their definitions. Avoid duplicates. If an acronym refers to the method introduced in the current paper, label it as "Our method". For all other acronyms, list each one followed by its full meaning as provided in the text.
+
+Title: {title}
+
+Abstract: {abstract}
+
+Introduction: {introduction}
+
+Present the results in JSON format as follows:
+{{
+  "acronyms": [
+    {{"acronym": "[ACRONYM]", "meaning": "Our method"}},
+    {{"acronym": "CNN", "meaning": "Convolutional Neural Network"}},
+    {{"acronym": "RNN", "meaning": "Recurrent Neural Network"}}
+  ]
+}}
+"""
