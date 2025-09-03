@@ -1,0 +1,68 @@
+memory_creation_prompt = """You are constructing memory pairs for retrieval-augmented reviewing. 
+Your job: for each COMMUNITY DESCRIPTOR of a paper, find whether it is mentioned in the provided HUMAN REVIEWS and, if so, cite exact quotes. 
+If not mentioned, output the exact string: "No specific mention was found in the review."
+
+INPUTS
+- paper_id: {{paper_id}}
+- paper_title: {{paper_title}}
+- acronyms_and_definitions (optional): {{acronyms}}
+- community_descriptors ĤC: {{community_descriptors}}
+  // JSON array of objects:
+  // [
+  //   {"id": "c1", "text": "<descriptor text of community 1>"},
+  //   {"id": "c2", "text": "<descriptor text of community 2>"},
+  //   ...
+  // ]
+- all_reviews_current: {{all_reviews_current}}
+  // JSON array of review objects:
+  // [
+  //   {"review_id": "rA", "reviewer_id": "R1", "text": "<full review text>"},
+  //   {"review_id": "rB", "reviewer_id": "R2", "text": "<full review text>"},
+  //   ...
+  // ]
+  // NOTE: Some reviews may contain bracketed tags like [Strength], [Weakness], [Question]. 
+  // If such tags exist in the quoted span, preserve them verbatim; otherwise omit category.
+
+TASK
+For each community descriptor ĥc in ĤC:
+1) Decide if ĥc is mentioned in ANY of the human reviews (semantic match—do not rely on exact string overlap only).
+2) If mentioned, extract ALL relevant exact quotes from the reviews. 
+   - Quotes must be verbatim substrings from the review texts (no paraphrasing).
+   - If the quoted span includes a category tag like [Strength]/[Weakness]/[Question], keep it; otherwise, omit category.
+   - Provide review_id and reviewer_id for each quote.
+3) If not mentioned in any review, set r_c to the exact string: "No specific mention was found in the review."
+4) List EVERY descriptor from ĤC in the output (no omissions).
+
+OUTPUT FORMAT (STRICT JSON; no markdown, no code fences)
+{
+  "paper_id": "{{paper_id}}",
+  "paper_title": "{{paper_title}}",
+  "memory_pairs": [
+    {
+      "descriptor_id": "<id from ĤC>",
+      "descriptor_text": "<text from ĤC>",
+      "r_c": [
+        {
+          "review_id": "<review_id>",
+          "reviewer_id": "<reviewer_id>",
+          "quote": "<verbatim quote from review text, preserving any bracketed category if present>"
+        },
+        ...
+      ]
+    },
+    {
+      "descriptor_id": "<id>",
+      "descriptor_text": "<text>",
+      "r_c": "No specific mention was found in the review."
+    },
+    ...
+  ]
+}
+
+CONSTRAINTS
+- Use ONLY exact quotes from the reviews; do not invent or summarize content.
+- It is acceptable for a descriptor to have multiple quotes from one or several reviews.
+- If nothing is found for a descriptor, the r_c value MUST be precisely: "No specific mention was found in the review."
+- Include ALL descriptors from ĤC in the "memory_pairs" array.
+- Keep JSON valid and compact. No additional fields.
+"""
