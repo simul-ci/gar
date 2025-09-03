@@ -1,0 +1,7 @@
+summary_community_prompt = """You are provided with a set of relationships from a knowledge graph, each represented as entity1->entity2->relation->relationship_description. Your task is to create a summary of these relationships. Replace all entity IDs** (like "Claim 20", "N66") with their **full descriptions in your summary. Capture the most critical and relevant details that highlight the*nature and significance of each relationship. If a claim or idea is NOT supported by evidence or other claims, mention this in your summary, but only if you believe it is important. Do not include any information that is not present in the provided input. Avoid making inferences or assumptions beyond the given text. Incorporate as much as possible direct phrases or sentences from the input text** when creating the summary. The summary should be a concise synthesis of the relationship descriptions. The goal is to capture the critical and relevant details that highlight the nature and significance of each relationship. Return output with the following format: 
+
+**Formatting Requirements:**
+Return output with the following format: 
+"findings": <findings>
+"summary": <summary>"""
+""
