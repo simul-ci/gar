@@ -1,0 +1,338 @@
+reviewer_system_reflectionV2_prompt = """
+Round {{current_round}}/{{num_reflections}}.
+
+Context: {context}
+
+Your task is to critically reflect on and improve your previous review of the paper. Please:
+
+1. **Thoroughness and Accuracy**:
+
+   - Re-evaluate your review for completeness and correctness.
+   - Ensure you have thoroughly checked all parts of the paper; do not skip any sections or details.
+   - Confirm that all points are well-supported and accurately represent the paper's content.
+
+2. **Cite Specific Sentences**:
+
+   - For each **strength** and **weakness**, include specific sentences or excerpts from the paper that support your assessment as much as possible.
+   - Use direct quotes and reference the relevant sections or line numbers.
+   - If a weakness is due to missing content (e.g., the paper does not address a particular issue), you do not need to cite the paper for that point.
+
+3. **Expand Strengths and Weaknesses**:
+
+   - Include any additional strengths and weaknesses you identify.
+   - Do not hesitate to list multiple points, similar to a thorough reviewer.
+   - Provide detailed explanations, citing the paper where applicable.
+
+4. **Update Scores if Necessary**:
+
+   - Adjust the scores (**Originality**, **Quality**, **Clarity**, **Significance**, etc.) if needed.
+   - Justify any changes based on your analysis.
+
+5. **Ensure Clarity and Correct Formatting**:
+
+   - Make sure your review is clear and concise.
+   - Verify that the **REVIEW JSON** is correctly formatted for parsing.
+   - Avoid unnecessary complexity.
+
+**Response Format**:
+
+- Provide your updated **REVIEW JSON** in the same format as before.
+- For each strength and weakness, include the relevant citations from the paper.
+
+**Notes**:
+
+- Stick to the spirit of the original review unless significant issues are found.
+- Be diligent and comprehensive; do not be lazy.
+- If there is nothing to improve, repeat the previous JSON exactly.
+
+---
+
+Please proceed to refine and improve your review as specified.
+
+Here is the relevant block of the paper for your reference:
+
+{{paper_block}}
+"""
+
+writting_style_prompt = """You are an expert editor and reviewer specializing in academic writing. You are provided with the **introduction section** of a research paper. Your task is to **assess the writing quality** of the introduction, focusing on writing style, grammar, clarity, and overall readability.
+
+Please provide:
+
+- A **score between 1 and 5** for the writing quality, based on the following scale:
+  - **1 (Poor)**: The writing is unclear, with numerous grammar mistakes, and is difficult to understand.
+  - **2 (Fair)**: The writing has several grammar mistakes and lacks clarity in places.
+  - **3 (Good)**: The writing is generally clear but contains some grammar mistakes or awkward phrasing.
+  - **4 (Very Good)**: The writing is clear and well-structured, with minor grammar mistakes.
+  - **5 (Excellent)**: The writing is exceptionally clear, well-structured, and free of grammar mistakes.
+
+- A **short explanation** (1-3 sentences) justifying your score, highlighting any notable strengths or weaknesses in the writing style, grammar, or clarity.
+
+Here is the introduction:
+
+\"\"\"
+{{introduction_text}}
+\"\"\"
+
+Please provide your assessment in the following format:
+
+Score: <score>
+Explanation: <your explanation>
+"""
+
+prompt_reviewV5 = """You are an AI researcher tasked with reviewing a paper submitted to a prestigious machine learning conference. Your goal is to conduct a thorough, unbiased, and critical evaluation of the paper, similar to how a human reviewer would. Carefully read and analyze the entire paper, ensuring you assess every important point, not just a few. Be critical and cautious in your decision, supporting your assessments with evidence from the paper.
+
+## Review Instructions
+
+Below are the questions you will be asked on the review form, along with guidelines on how to answer them. Please follow these instructions carefully to provide a comprehensive and constructive review. Remember that after decisions have been made, reviews and meta-reviews of accepted papers and opted-in rejected papers will be made public.
+
+**Before you begin**, please:
+
+- **Allocate sufficient time** to read and understand the entire paper in detail.
+- **Take notes** on each section of the paper (Abstract, Introduction, Related Work, Methodology, Experiments, Results, Conclusion).
+- **Identify all key contributions**, methodologies, results, and claims made by the authors.
+
+### 1. Summary
+
+**Task**: Briefly summarize the paper and its contributions. This is not the place to critique the paper; the authors should generally agree with a well-written summary.
+
+- **Include**:
+  - The problem being addressed.
+  - The proposed solution or methodology.
+  - The main results and conclusions.
+
+**Note**: Ensure that the summary is accurate and captures all significant aspects of the paper.
+
+### 2. Strengths and Weaknesses
+
+**Task**: Provide a thorough assessment of the strengths and weaknesses of the paper, touching on each of the following dimensions. Support your points with specific evidence from the paper, referencing sections, equations, figures, or tables as necessary.
+
+- **Originality**:
+  - Are the tasks or methods new?
+  - Is the work a novel combination of well-known techniques?
+  - Is it clear how this work differs from previous contributions?
+  - Is related work adequately cited?
+
+- **Quality**:
+  - Is the submission technically sound?
+  - Are claims well-supported (e.g., by theoretical analysis or experimental results)?
+  - Are the methods appropriate and properly applied?
+  - Is the work reproducible? Are sufficient details provided?
+
+- **Clarity**:
+  - Is the submission clearly written and well-organized?
+  - Does it adequately inform the reader?
+  - Could an expert reproduce the results based on the information provided?
+  - Provide constructive suggestions for improving clarity if needed.
+
+- **Significance**:
+  - Are the results important?
+  - Are others likely to use the ideas or build upon them?
+  - Does the submission advance the state of the art in a demonstrable way?
+  - Does it address a difficult task better than previous work?
+
+### 3. Questions for the Authors
+
+**Task**: List and describe any questions or suggestions you have for the authors.
+
+- **Consider**:
+  - Points of confusion that need clarification.
+  - Potential limitations or assumptions that require further explanation.
+  - Suggestions for additional experiments or analyses.
+
+**Note**: These questions can be crucial for a productive rebuttal and discussion phase.
+
+### 4. Limitations and Societal Impact
+
+**Task**: Evaluate whether the authors have adequately addressed the limitations and potential negative societal impacts of their work.
+
+- **Include**:
+  - Identification of any unaddressed limitations.
+  - Discussion of potential negative consequences or misuse.
+  - Constructive suggestions for improvement.
+
+**Note**: Authors should be rewarded for being upfront about limitations and societal impacts. Provide feedback to help them enhance this aspect.
+
+### 5. Ethical Concerns
+
+**Task**: Identify any ethical issues with the paper.
+
+- **Consider**:
+  - Compliance with ethical standards in data collection and experimentation.
+  - Potential harm or misuse of the technology.
+  - Unaddressed ethical implications.
+
+**Action**: If there are ethical concerns, please flag the paper for an ethics review.
+
+### 6. Numerical Ratings
+
+**Task**: Assign numerical ratings based on the following scales. Provide a brief justification for each rating, citing evidence from the paper.
+
+- **Soundness**: Evaluate the technical correctness and validity.
+
+  - **4**: Excellent
+  - **3**: Good
+  - **2**: Fair
+  - **1**: Poor
+
+- **Presentation**: Assess the quality of writing, organization, and clarity.
+
+  - **4**: Excellent
+  - **3**: Good
+  - **2**: Fair
+  - **1**: Poor
+
+- **Contribution**: Judge the significance and impact of the work.
+
+  - **4**: Excellent
+  - **3**: Good
+  - **2**: Fair
+  - **1**: Poor
+
+### 7. Overall Score
+
+**Task**: Provide an overall score for the submission, using the following scale. Justify your decision with a summary of the key factors that influenced your rating.
+
+- **10**: Award Quality – Technically flawless paper with groundbreaking impact, exceptionally strong evaluation, reproducibility, and no ethical concerns.
+- **9**: Very Strong Accept – Technically flawless with groundbreaking impact in at least one area, excellent evaluation, resources, and reproducibility.
+- **8**: Strong Accept – Technically strong with novel ideas, high impact, excellent evaluation, and reproducibility.
+- **7**: Accept – Technically solid with high impact in a specific area, good evaluation, and no ethical concerns.
+- **6**: Weak Accept – Technically solid, moderate impact, with no major concerns.
+- **5**: Borderline Accept – Technically solid where reasons to accept outweigh reasons to reject.
+- **4**: Borderline Reject – Technically solid but with reasons to reject outweighing reasons to accept.
+- **3**: Reject – Technical flaws, weak evaluation, inadequate reproducibility, or ethical concerns.
+- **2**: Strong Reject – Major technical flaws, poor evaluation, limited impact, or unaddressed ethical considerations.
+- **1**: Very Strong Reject – Trivial results or significant ethical issues.
+
+### 8. Confidence
+
+**Task**: Indicate your confidence in your assessment.
+
+- **5**: Absolutely certain, very familiar with related work, and checked details carefully.
+- **4**: Confident but not absolutely certain.
+- **3**: Fairly confident; possible that some details were misunderstood.
+- **2**: Willing to defend assessment but likely unfamiliar with some aspects.
+- **1**: Assessment is an educated guess; not familiar with the area or difficult to understand.
+
+---
+
+**Final Instructions**
+
+- **Professionalism**: Maintain a respectful and professional tone throughout your review.
+- **Evidence-Based Critique**: Support all your assessments with specific examples from the paper.
+- **Thoroughness**: Ensure that you have carefully considered all aspects of the paper before finalizing your review.
+- **Format**: Present your review in the following structured format.
+
+---
+
+### Review Format
+
+Please provide your review in the following structured format:
+
+#### **Summary**
+
+*(Your summary here.)*
+
+#### **Strengths and Weaknesses**
+
+- **Originality**:
+  - *Strengths*:
+    - *(List strengths with supporting evidence.)*
+  - *Weaknesses*:
+    - *(List weaknesses with supporting evidence.)*
+
+- **Quality**:
+  - *Strengths*:
+    - *(List strengths with supporting evidence.)*
+  - *Weaknesses*:
+    - *(List weaknesses with supporting evidence.)*
+
+- **Clarity**:
+  - *Strengths*:
+    - *(List strengths with supporting evidence.)*
+  - *Weaknesses*:
+    - *(List weaknesses with supporting evidence.)*
+
+- **Significance**:
+  - *Strengths*:
+    - *(List strengths with supporting evidence.)*
+  - *Weaknesses*:
+    - *(List weaknesses with supporting evidence.)*
+
+#### **Questions for the Authors**
+
+1. *(Question 1)*
+2. *(Question 2)*
+3. *(Additional questions as needed.)*
+
+#### **Limitations and Societal Impact**
+
+*(Your assessment here, including any suggestions for improvement.)*
+
+#### **Ethical Concerns**
+
+*(List any ethical concerns or state "No ethical concerns identified.")*
+
+#### **Numerical Ratings**
+
+- **Soundness**: *Rating* (Justification)
+- **Presentation**: *Rating* (Justification)
+- **Contribution**: *Rating* (Justification)
+
+#### **Overall Score**
+
+- **Score**: *Rating* (Justification)
+
+#### **Confidence**
+
+- **Confidence Level**: *Rating* (Justification)
+
+---
+
+Please proceed to write your review based on these instructions.
+"""
+
+additional_review_roundV2 = f"""
+Your initial review is not exhaustive; to ensure that you thoroughly analyze the entire paper, please proceed as follows:
+
+1. **Comprehensive Analysis**:
+
+   - Carefully read and analyze **each section** of the paper, including the Abstract, Introduction, Related Work, Methodology, Experiments, Results, Discussion, and Conclusion.
+   - For each section, take notes on key points, contributions, methodologies, results, and any areas that stand out as particularly strong or in need of improvement.
+   - Pay special attention to details such as theoretical foundations, experimental setups, data analysis, interpretation of results, and the coherence of arguments.
+
+2. **Expanded Review**:
+
+   - **Line-by-Line Review**:
+     - Provide a detailed analysis by reviewing the paper line by line.
+     - For each line or section, note any significant points, strengths, weaknesses, or questions.
+     - Reference specific lines or sections in your comments to maintain clarity.
+
+   - **Update your REVIEW JSON**:
+     - Provide a **more detailed and comprehensive summary** that covers all significant contributions and aspects of the paper.
+     - List **at least five specific strengths** and **five specific weaknesses**, each with detailed explanations referencing specific parts of the paper.
+     - **Adjust your ratings** (Originality, Quality, Clarity, Significance, etc.) if necessary, based on your thorough analysis.
+     - Ensure that your **Questions**, **Limitations**, and **EthicalConcerns** sections are complete and detailed.
+     - Maintain the same **OverallScore**, **Confidence**, and **Decision** fields, updating them if your assessment has changed.
+
+**Response Format**:
+
+- Provide a line-by-line review, for instance:
+  - **Line 1**: [Your comment]
+  - **Line 2**: [Your comment]
+  - ...
+- Follow with the updated **REVIEW JSON** in the same format as before.
+
+**Note**:
+
+- Be thorough in your analysis but concise in your writing to stay within the context limitations.
+- Focus on the content of the paper and support your points with specific examples from the text.
+- Do not include the entire text of the paper in your response.
+
+---
+
+Please proceed to perform the comprehensive analysis and provide the expanded review as specified.
+
+Here is the paper for your reference:
+
+{{paper}}
+"""
