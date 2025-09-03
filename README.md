@@ -12,4 +12,5 @@ The peer review process is fundamental to scientific progress, determining which
 </p>
 
 ## ⚙️ Usage
-To be added soon
+- 🆕 Prompts: All prompts used in CitySim can be found in the [`prompts`](./prompts) folder.  
+- Code: Will be released soon!
